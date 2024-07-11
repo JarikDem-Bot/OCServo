@@ -155,9 +155,11 @@ void OCServo::setMaxTorque(int torque) {
 }
 
 void OCServo::setMode(int mode) {
-    byte value = 0x00;
+    byte value;
 
     switch(mode) {
+        default:
+            // Fallthrough to OCS_SERVO
         case OCS_SERVO:
             value = OCS_MODE_SERVO;
             break;
@@ -166,10 +168,10 @@ void OCServo::setMode(int mode) {
             break;
     } 
     
-    this->regWrite(OCS_MODE, 1, &value);
+    this->regWrite(OCS_RUNNING_MODE, 1, &value);
 }
 
-void OCServo::setTargetAngle(int angle, int time_ms /*= 0*/) {
+void OCServo::setGoalPosition(int angle, int time_ms /*= 0*/) {
     angle = map(angle, 0, 360, 0, 4095);
     byte params[4] = {
         lowByte(angle),
@@ -177,7 +179,74 @@ void OCServo::setTargetAngle(int angle, int time_ms /*= 0*/) {
         lowByte(time_ms),
         highByte(time_ms)
     };
-    this->regWrite(OCS_TARGET_POSITION, 4, params);
+    this->regWrite(OCS_GOAL_POSITION, 4, params);
+}
+
+void OCServo::setResponseDelay(int delayMicros) {
+    if(delayMicros < 0 || delayMicros > 510) {
+        Serial.println("Invalid delay value. Using 0 instead.");
+        delayMicros = 0;
+    }
+    byte value = delayMicros / 2;
+    this->regWrite(OCS_RESPONSE_DELAY, 1, &value);
+}
+
+void OCServo::setResponseLevel(int level) {
+    byte value;
+
+    switch (level)
+    {
+        case OCS_RESPOND_READ_ONLY:
+            value = OCS_RESPONSE_READ;
+            break;
+        default:
+            // Fallthrough to OCS_RESPOND_ALL
+        case OCS_RESPOND_ALL:
+            value = OCS_RESPONSE_ALL;
+            break;
+    }
+
+    this->regWrite(OCS_RESPONSE_LEVEL, 1, &value);
+}
+
+void OCServo::setMinAngle(int angle) {
+    byte params[2] = {
+        lowByte(angle),
+        highByte(angle)
+    };
+    this->regWrite(OCS_MIN_ANGLE, 2, params);
+}
+
+void OCServo::setMaxAngle(int angle) {
+    byte params[2] = {
+        lowByte(angle),
+        highByte(angle)
+    };
+    this->regWrite(OCS_MAX_ANGLE, 2, params);
+}
+
+void OCServo::setMaxVoltage(int voltage) {
+    byte params[2] = {
+        lowByte(voltage),
+        highByte(voltage)
+    };
+    this->regWrite(OCS_MAX_VOLTAGE, 2, params);
+}
+
+void OCServo::setMinVoltage(int voltage) {
+    byte params[2] = {
+        lowByte(voltage),
+        highByte(voltage)
+    };
+    this->regWrite(OCS_MIN_VOLTAGE, 2, params);
+}
+
+void OCServo::setOperationSpeed(long speed) {
+    byte params[2] = {
+        lowByte(speed),
+        highByte(speed)
+    };
+    this->regWrite(OCS_OPERATION_SPEED, 2, params);
 }
 
 /* READ COMMANDS */

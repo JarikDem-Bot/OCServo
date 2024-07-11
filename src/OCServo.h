@@ -11,6 +11,11 @@ enum OCSMode {
     OCS_MOTOR
 };
 
+enum OCSResponseLevel {
+    OCS_RESPOND_READ_ONLY,
+    OCS_RESPOND_ALL
+};
+
 typedef enum e_SerialPortType {
     SERIAL_HARDWARE,
     SERIAL_SOFTWARE
@@ -38,8 +43,15 @@ class OCServo {
         void setBaudRate(long baudrate);
         void setMaxTorque(int torque);
         void setMode(int mode);
-        void setTargetAngle(int angle, int time_ms = 0);
-        
+        void setGoalPosition(int angle, int time_ms = 0);
+        void setResponseDelay(int delayMicros);
+        void setResponseLevel(int level);
+        void setMinAngle(int angle);
+        void setMaxAngle(int angle);
+        void setMaxVoltage(int voltage);
+        void setMinVoltage(int voltage);
+        void setOperationSpeed(long speed);
+
         void getBaudRate();
 
         void begin(long baudrate=1000000);
