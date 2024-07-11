@@ -171,13 +171,13 @@ void OCServo::setMode(int mode) {
     this->regWrite(OCS_RUNNING_MODE, 1, &value);
 }
 
-void OCServo::setGoalPosition(int angle, int time_ms /*= 0*/) {
+void OCServo::setGoalPosition(int angle, long timeMillis /*= 0*/) {
     angle = map(angle, 0, 360, 0, 4095);
     byte params[4] = {
         lowByte(angle),
         highByte(angle),
-        lowByte(time_ms),
-        highByte(time_ms)
+        lowByte(timeMillis),
+        highByte(timeMillis)
     };
     this->regWrite(OCS_GOAL_POSITION, 4, params);
 }

@@ -43,7 +43,7 @@ class OCServo {
         void setBaudRate(long baudrate);
         void setMaxTorque(int torque);
         void setMode(int mode);
-        void setGoalPosition(int angle, int time_ms = 0);
+        void setGoalPosition(int angle, long timeMillis = 0);
         void setResponseDelay(int delayMicros);
         void setResponseLevel(int level);
         void setMinAngle(int angle);
