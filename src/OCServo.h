@@ -21,6 +21,16 @@ typedef enum e_SerialPortType {
     SERIAL_SOFTWARE
 } SerialPortType;
 
+struct OCSResponse {
+    byte prefix[2];
+    byte id;
+    byte length;
+    byte instruction;
+    int numberOfParameters;
+    byte parameters[16];
+    byte checksum;
+};
+
 class OCServo {
     private:
         byte id;
@@ -29,6 +39,7 @@ class OCServo {
 
         byte getChecksum(byte *data, int size);
         byte baudRateToByte(long baudrate);
+        OCSResponse bytesToResponse(byte *data, int size);
         void readResponse();
 
     public:
@@ -55,6 +66,7 @@ class OCServo {
         void getBaudRate();
 
         void begin(long baudrate=1000000);
+        void printResponse(OCSResponse response);
 };
 
 #endif

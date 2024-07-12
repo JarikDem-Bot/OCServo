@@ -54,11 +54,27 @@ byte OCServo::baudRateToByte(long baudrate) {
     return value;
 }
 
+OCSResponse OCServo::bytesToResponse(byte *data, int size) {
+    OCSResponse response;
+
+    response.prefix[0] = data[0];
+    response.prefix[1] = data[1];
+    response.id = data[2];
+    response.length = data[3];
+    response.instruction = data[4];
+    response.numberOfParameters = response.length - 2;
+    for(int i = 0; i < response.numberOfParameters; i++) {
+        response.parameters[i] = data[5+i];
+    }
+    response.checksum = data[size-1];
+
+    return response;
+}
+
 void OCServo::readResponse() {
-    byte response[16];
+    byte response[23];  // 16 params + 7 other fields
     int i = 0;
 
-    Serial.print("Response: ");
     unsigned long last_check_time = millis();
     while(true) {
         if(serial->available() > 0) {
@@ -71,11 +87,8 @@ void OCServo::readResponse() {
         }
     }
 
-    for(int j = 0; j < i; j++) {
-        Serial.print(" 0x");
-        Serial.print(response[j], HEX);
-    }
-    Serial.println();
+    OCSResponse result = this->bytesToResponse(response, i);
+    this->printResponse(result);
 }
 
 /* INSTRUCTIONS */
@@ -264,4 +277,30 @@ void OCServo::begin(long baudrate/*=1000000*/) {
             static_cast<SoftwareSerial*>(serial)->begin(baudrate);
             break;
     }
+}
+
+void OCServo::printResponse(OCSResponse response) {
+    Serial.print("Prefix: 0x");
+    Serial.print(response.prefix[0], HEX);
+    Serial.print(" 0x");
+    Serial.println(response.prefix[1], HEX);
+
+    Serial.print("ID: 0x");
+    Serial.println(response.id, HEX);
+
+    Serial.print("Length: 0x");
+    Serial.println(response.length, HEX);
+
+    Serial.print("Instruction: 0x");
+    Serial.println(response.instruction, HEX);
+
+    Serial.print("Parameters:");
+    for(int i = 0; i < response.numberOfParameters; i++) {
+        Serial.print(" 0x");
+        Serial.print(response.parameters[i], HEX);
+    }
+    Serial.println();
+
+    Serial.print("Checksum: 0x");
+    Serial.println(response.checksum, HEX);
 }
