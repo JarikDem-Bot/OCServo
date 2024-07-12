@@ -21,6 +21,16 @@ typedef enum e_SerialPortType {
     SERIAL_SOFTWARE
 } SerialPortType;
 
+struct OCSResponse {
+    byte prefix[2];
+    byte id;
+    byte length;
+    byte instruction;
+    int numberOfParameters;
+    byte parameters[16];
+    byte checksum;
+};
+
 class OCServo {
     private:
         byte id;
@@ -29,7 +39,8 @@ class OCServo {
 
         byte getChecksum(byte *data, int size);
         byte baudRateToByte(long baudrate);
-        void readResponse();
+        OCSResponse bytesToResponse(byte *data, int size);
+        OCSResponse readResponse();
 
     public:
         OCServo(byte id, SoftwareSerial *serialPort);
@@ -37,24 +48,25 @@ class OCServo {
 
         void ping();
         void regRead(byte address, byte length);
-        void regWrite(byte address, int paramsNumber, byte *params);
+        OCSResponse regWrite(byte address, int paramsNumber, byte *params);
 
-        void setID(byte new_id);
+        OCSResponse setID(byte new_id);
         void setBaudRate(long baudrate);
-        void setMaxTorque(int torque);
-        void setMode(int mode);
-        void setGoalPosition(int angle, long timeMillis = 0);
-        void setResponseDelay(int delayMicros);
-        void setResponseLevel(int level);
-        void setMinAngle(int angle);
-        void setMaxAngle(int angle);
-        void setMaxVoltage(int voltage);
-        void setMinVoltage(int voltage);
-        void setOperationSpeed(long speed);
+        OCSResponse setMaxTorque(int torque);
+        OCSResponse setMode(int mode);
+        OCSResponse setGoalPosition(int angle, long timeMillis = 0);
+        OCSResponse setResponseDelay(int delayMicros);
+        OCSResponse setResponseLevel(int level);
+        OCSResponse setMinAngle(int angle);
+        OCSResponse setMaxAngle(int angle);
+        OCSResponse setMaxVoltage(int voltage);
+        OCSResponse setMinVoltage(int voltage);
+        OCSResponse setOperationSpeed(long speed);
 
         void getBaudRate();
 
         void begin(long baudrate=1000000);
+        void printResponse(OCSResponse response);
 };
 
 #endif

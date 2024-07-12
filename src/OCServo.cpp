@@ -54,8 +54,26 @@ byte OCServo::baudRateToByte(long baudrate) {
     return value;
 }
 
-void OCServo::readResponse() {
-    byte response[16];
+OCSResponse OCServo::bytesToResponse(byte *data, int size) {
+    OCSResponse response;
+
+    response.prefix[0] = *(data);
+    response.prefix[1] = *(data+1);
+    response.id = data[2];
+    response.length = data[3];
+    response.instruction = data[4];
+    response.numberOfParameters = response.length - 2;
+    for(int i = 0; i < response.numberOfParameters; i++) {
+        response.parameters[i] = data[5+i];
+    }
+    response.checksum = data[response.numberOfParameters + 5];
+
+    return response;
+}
+
+OCSResponse OCServo::readResponse() {
+    byte response[23];  // 16 params + 7 other fields
+    for (int x = 0; x < 23; x++) response[x] = 0x00; // Clear response array (just in case)
     int i = 0;
 
     unsigned long last_check_time = millis();
@@ -65,10 +83,13 @@ void OCServo::readResponse() {
             i++;
             last_check_time = millis();
         }
-        else if(millis() > last_check_time + 2) {
+        else if(millis() > last_check_time + 4) {
             break;
         }
     }
+
+    OCSResponse result = this->bytesToResponse(response, i);
+    return result;
 }
 
 /* INSTRUCTIONS */
@@ -105,7 +126,7 @@ void OCServo::regRead(byte address, byte length) {
     this->readResponse();
 }
 
-void OCServo::regWrite(byte address, int paramsNumber, byte *params) {
+OCSResponse OCServo::regWrite(byte address, int paramsNumber, byte *params) {
     int size = paramsNumber + 7;
     byte request[size] = {
         0xFF, 0xFF,             // Prefix
@@ -122,13 +143,14 @@ void OCServo::regWrite(byte address, int paramsNumber, byte *params) {
     request[size-1] = this->getChecksum(request, size-1);
 
     serial->write(request, size);
-    this->readResponse();
+    return this->readResponse();
 }
 
 /* WRITE COMMANDS */
-void OCServo::setID(byte new_id) {
-    this->regWrite(OCS_SERVO_ID, 1, &new_id);
+OCSResponse OCServo::setID(byte new_id) {
+    OCSResponse resp =  this->regWrite(OCS_SERVO_ID, 1, &new_id);
     id = new_id;
+    return resp;
 }
 
 void OCServo::setBaudRate(long baudrate) {
@@ -139,15 +161,15 @@ void OCServo::setBaudRate(long baudrate) {
     this->begin(baudrate);
 }
 
-void OCServo::setMaxTorque(int torque) {
+OCSResponse OCServo::setMaxTorque(int torque) {
     byte params[2] = {
         lowByte(torque),
         highByte(torque)
     };
-    this->regWrite(OCS_MAX_TORQUE, 2, params);
+    return this->regWrite(OCS_MAX_TORQUE, 2, params);
 }
 
-void OCServo::setMode(int mode) {
+OCSResponse OCServo::setMode(int mode) {
     byte value;
 
     switch(mode) {
@@ -161,10 +183,10 @@ void OCServo::setMode(int mode) {
             break;
     } 
     
-    this->regWrite(OCS_RUNNING_MODE, 1, &value);
+    return this->regWrite(OCS_RUNNING_MODE, 1, &value);
 }
 
-void OCServo::setGoalPosition(int angle, long timeMillis /*= 0*/) {
+OCSResponse OCServo::setGoalPosition(int angle, long timeMillis /*= 0*/) {
     angle = map(angle, 0, 360, 0, 4095);
     byte params[4] = {
         lowByte(angle),
@@ -172,19 +194,19 @@ void OCServo::setGoalPosition(int angle, long timeMillis /*= 0*/) {
         lowByte(timeMillis),
         highByte(timeMillis)
     };
-    this->regWrite(OCS_GOAL_POSITION, 4, params);
+    return this->regWrite(OCS_GOAL_POSITION, 4, params);
 }
 
-void OCServo::setResponseDelay(int delayMicros) {
+OCSResponse OCServo::setResponseDelay(int delayMicros) {
     if(delayMicros < 0 || delayMicros > 510) {
         // Invalid delay, using default 0
         delayMicros = 0;
     }
     byte value = delayMicros / 2;
-    this->regWrite(OCS_RESPONSE_DELAY, 1, &value);
+    return this->regWrite(OCS_RESPONSE_DELAY, 1, &value);
 }
 
-void OCServo::setResponseLevel(int level) {
+OCSResponse OCServo::setResponseLevel(int level) {
     byte value;
 
     switch (level)
@@ -199,47 +221,47 @@ void OCServo::setResponseLevel(int level) {
             break;
     }
 
-    this->regWrite(OCS_RESPONSE_LEVEL, 1, &value);
+    return this->regWrite(OCS_RESPONSE_LEVEL, 1, &value);
 }
 
-void OCServo::setMinAngle(int angle) {
+OCSResponse OCServo::setMinAngle(int angle) {
     byte params[2] = {
         lowByte(angle),
         highByte(angle)
     };
-    this->regWrite(OCS_MIN_ANGLE, 2, params);
+    return this->regWrite(OCS_MIN_ANGLE, 2, params);
 }
 
-void OCServo::setMaxAngle(int angle) {
+OCSResponse OCServo::setMaxAngle(int angle) {
     byte params[2] = {
         lowByte(angle),
         highByte(angle)
     };
-    this->regWrite(OCS_MAX_ANGLE, 2, params);
+    return this->regWrite(OCS_MAX_ANGLE, 2, params);
 }
 
-void OCServo::setMaxVoltage(int voltage) {
+OCSResponse OCServo::setMaxVoltage(int voltage) {
     byte params[2] = {
         lowByte(voltage),
         highByte(voltage)
     };
-    this->regWrite(OCS_MAX_VOLTAGE, 2, params);
+    return this->regWrite(OCS_MAX_VOLTAGE, 2, params);
 }
 
-void OCServo::setMinVoltage(int voltage) {
+OCSResponse OCServo::setMinVoltage(int voltage) {
     byte params[2] = {
         lowByte(voltage),
         highByte(voltage)
     };
-    this->regWrite(OCS_MIN_VOLTAGE, 2, params);
+    return this->regWrite(OCS_MIN_VOLTAGE, 2, params);
 }
 
-void OCServo::setOperationSpeed(long speed) {
+OCSResponse OCServo::setOperationSpeed(long speed) {
     byte params[2] = {
         lowByte(speed),
         highByte(speed)
     };
-    this->regWrite(OCS_OPERATION_SPEED, 2, params);
+    return this->regWrite(OCS_OPERATION_SPEED, 2, params);
 }
 
 /* READ COMMANDS */
@@ -257,4 +279,30 @@ void OCServo::begin(long baudrate/*=1000000*/) {
             static_cast<SoftwareSerial*>(serial)->begin(baudrate);
             break;
     }
+}
+
+void OCServo::printResponse(OCSResponse response) {
+    Serial.print("Prefix: 0x");
+    Serial.print(response.prefix[0], HEX);
+    Serial.print(" 0x");
+    Serial.println(response.prefix[1], HEX);
+
+    Serial.print("ID: 0x");
+    Serial.println(response.id, HEX);
+
+    Serial.print("Length: 0x");
+    Serial.println(response.length, HEX);
+
+    Serial.print("Instruction: 0x");
+    Serial.println(response.instruction, HEX);
+
+    Serial.print("Parameters:");
+    for(int i = 0; i < response.numberOfParameters; i++) {
+        Serial.print(" 0x");
+        Serial.print(response.parameters[i], HEX);
+    }
+    Serial.println();
+
+    Serial.print("Checksum: 0x");
+    Serial.println(response.checksum, HEX);
 }
