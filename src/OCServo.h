@@ -48,7 +48,7 @@ class OCServo {
 
         void ping();
         void regRead(byte address, byte length);
-        void regWrite(byte address, int paramsNumber, byte *params);
+        OCSResponse regWrite(byte address, int paramsNumber, byte *params);
 
         void setID(byte new_id);
         void setBaudRate(long baudrate);

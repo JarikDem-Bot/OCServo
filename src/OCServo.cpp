@@ -126,7 +126,7 @@ void OCServo::regRead(byte address, byte length) {
     this->readResponse();
 }
 
-void OCServo::regWrite(byte address, int paramsNumber, byte *params) {
+OCSResponse OCServo::regWrite(byte address, int paramsNumber, byte *params) {
     int size = paramsNumber + 7;
     byte request[size] = {
         0xFF, 0xFF,             // Prefix
@@ -143,7 +143,7 @@ void OCServo::regWrite(byte address, int paramsNumber, byte *params) {
     request[size-1] = this->getChecksum(request, size-1);
 
     serial->write(request, size);
-    OCSResponse resp = this->readResponse();
+    return this->readResponse();
 }
 
 /* WRITE COMMANDS */
