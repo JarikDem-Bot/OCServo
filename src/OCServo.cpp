@@ -54,6 +54,42 @@ byte OCServo::baudRateToByte(long baudrate) {
     return value;
 }
 
+long OCServo::byteToBaudRate(byte value) {
+    long result;
+
+    switch(value) {
+        case OCS_BAUDRATE_1M:
+            result = 1000000;
+            break;
+        case OCS_BAUDRATE_500K:
+            result = 500000;
+            break;
+        case OCS_BAUDRATE_250K:
+            result = 250000;
+            break;
+        case OCS_BAUDRATE_128K:
+            result = 128000;
+            break;
+        case OCS_BAUDRATE_115200:
+            result = 115200;
+            break;
+        case OCS_BAUDRATE_76800:
+            result = 76800;
+            break;
+        case OCS_BAUDRATE_57600:
+            result = 57600;
+            break;
+        case OCS_BAUDRATE_38400:
+            result = 38400;
+            break;
+        default:
+            result = -1;
+            break;
+    }
+
+    return result;
+}
+
 OCSResponse OCServo::bytesToResponse(byte *data, int size) {
     OCSResponse response;
 
@@ -109,7 +145,7 @@ void OCServo::ping() {
     this->readResponse();
 }
 
-void OCServo::regRead(byte address, byte length) {
+OCSResponse OCServo::regRead(byte address, byte length) {
     int size = 8;
     byte request[size] = {
         0xFF, 0xFF,         // Prefix
@@ -123,7 +159,7 @@ void OCServo::regRead(byte address, byte length) {
     request[size-1] = this->getChecksum(request, size-1);
 
     serial->write(request, size);
-    this->readResponse();
+    return this->readResponse();
 }
 
 OCSResponse OCServo::regWrite(byte address, int paramsNumber, byte *params) {
@@ -265,8 +301,12 @@ OCSResponse OCServo::setOperationSpeed(long speed) {
 }
 
 /* READ COMMANDS */
-void OCServo::getBaudRate() {
-    this->regRead(OCS_BAUD_RATE, 1);
+long OCServo::getBaudRate() {
+    OCSResponse response = this->regRead(OCS_BAUD_RATE, 1);
+    if (response.numberOfParameters != 1) {
+        return -1;
+    }
+    return this->byteToBaudRate(response.parameters[0]);
 }
 
 /* OTHER */

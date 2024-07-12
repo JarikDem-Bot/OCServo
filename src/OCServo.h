@@ -39,6 +39,7 @@ class OCServo {
 
         byte getChecksum(byte *data, int size);
         byte baudRateToByte(long baudrate);
+        long byteToBaudRate(byte value);
         OCSResponse bytesToResponse(byte *data, int size);
         OCSResponse readResponse();
 
@@ -47,7 +48,7 @@ class OCServo {
         OCServo(byte id, HardwareSerial *serialPort);
 
         void ping();
-        void regRead(byte address, byte length);
+        OCSResponse regRead(byte address, byte length);
         OCSResponse regWrite(byte address, int paramsNumber, byte *params);
 
         OCSResponse setID(byte new_id);
@@ -63,7 +64,7 @@ class OCServo {
         OCSResponse setMinVoltage(int voltage);
         OCSResponse setOperationSpeed(long speed);
 
-        void getBaudRate();
+        long getBaudRate();
 
         void begin(long baudrate=1000000);
         void printResponse(OCSResponse response);
