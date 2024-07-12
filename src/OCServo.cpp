@@ -301,6 +301,14 @@ OCSResponse OCServo::setOperationSpeed(long speed) {
 }
 
 /* READ COMMANDS */
+byte OCServo::getID() {
+    OCSResponse response = this->regRead(OCS_SERVO_ID, 1);
+    if (response.numberOfParameters != 1) {
+        return 0xFF;
+    }
+    return response.parameters[0];
+}
+
 long OCServo::getBaudRate() {
     OCSResponse response = this->regRead(OCS_BAUD_RATE, 1);
     if (response.numberOfParameters != 1) {

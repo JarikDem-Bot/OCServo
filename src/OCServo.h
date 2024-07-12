@@ -64,7 +64,9 @@ class OCServo {
         OCSResponse setMinVoltage(int voltage);
         OCSResponse setOperationSpeed(long speed);
 
+        byte getID();
         long getBaudRate();
+        
 
         void begin(long baudrate=1000000);
         void printResponse(OCSResponse response);
