@@ -40,7 +40,7 @@ class OCServo {
         byte getChecksum(byte *data, int size);
         byte baudRateToByte(long baudrate);
         OCSResponse bytesToResponse(byte *data, int size);
-        void readResponse();
+        OCSResponse readResponse();
 
     public:
         OCServo(byte id, SoftwareSerial *serialPort);

@@ -66,13 +66,14 @@ OCSResponse OCServo::bytesToResponse(byte *data, int size) {
     for(int i = 0; i < response.numberOfParameters; i++) {
         response.parameters[i] = data[5+i];
     }
-    response.checksum = data[size-1];
+    response.checksum = data[response.numberOfParameters + 6];
 
     return response;
 }
 
-void OCServo::readResponse() {
+OCSResponse OCServo::readResponse() {
     byte response[23];  // 16 params + 7 other fields
+    for (int x = 0; x < 23; x++) response[x] = 0x00; // Clear response array (just in case)
     int i = 0;
 
     unsigned long last_check_time = millis();
@@ -88,7 +89,7 @@ void OCServo::readResponse() {
     }
 
     OCSResponse result = this->bytesToResponse(response, i);
-    this->printResponse(result);
+    return result;
 }
 
 /* INSTRUCTIONS */
@@ -142,7 +143,7 @@ void OCServo::regWrite(byte address, int paramsNumber, byte *params) {
     request[size-1] = this->getChecksum(request, size-1);
 
     serial->write(request, size);
-    this->readResponse();
+    OCSResponse resp = this->readResponse();
 }
 
 /* WRITE COMMANDS */
