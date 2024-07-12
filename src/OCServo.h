@@ -56,7 +56,7 @@ class OCServo {
         OCSResponse setMaxTorque(int torque);
         OCSResponse setMode(int mode);
         OCSResponse setGoalAngle(int angle, long timeMillis= 0);
-        OCSResponse setGoalPosition(int angle, long timeMillis = 0);
+        OCSResponse setGoalPosition(int position, long timeMillis = 0);
         OCSResponse setOperationTime(long timeMillis);
         OCSResponse setResponseDelay(int delayMicros);
         OCSResponse setResponseLevel(int level);
