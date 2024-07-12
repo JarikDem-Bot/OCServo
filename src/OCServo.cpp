@@ -325,6 +325,31 @@ long OCServo::getBaudRate() {
     return this->byteToBaudRate(response.parameters[0]);
 }
 
+int OCServo::getMaxTorque() {
+    OCSResponse response = this->ocsRead(OCS_MAX_TORQUE, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+}
+
+int OCServo::getMode() {
+    OCSResponse response = this->ocsRead(OCS_RUNNING_MODE, 1);
+    if (response.numberOfParameters != 1) {
+        return -1;
+    }
+    return response.parameters[0];
+}
+
+int OCServo::getGoalPosition() {
+    OCSResponse response = this->ocsRead(OCS_GOAL_POSITION, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    int value = ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+    return map(value, 0, 4095, 0, 360);
+}
+
 long OCServo::getOperationTime() {
     OCSResponse response = this->ocsRead(OCS_OPERATION_TIME, 2);
     if (response.numberOfParameters != 2) {
@@ -332,6 +357,62 @@ long OCServo::getOperationTime() {
     }
     return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
 
+}
+
+int OCServo::getResponseDelay() {
+    OCSResponse response = this->ocsRead(OCS_RESPONSE_DELAY, 1);
+    if (response.numberOfParameters != 1) {
+        return -1;
+    }
+    return response.parameters[0] * 2;
+}
+
+int OCServo::getResponseLevel() {
+    OCSResponse response = this->ocsRead(OCS_RESPONSE_LEVEL, 1);
+    if (response.numberOfParameters != 1) {
+        return -1;
+    }
+    return response.parameters[0];
+}
+
+int OCServo::getMinAngle() {
+    OCSResponse response = this->ocsRead(OCS_MIN_ANGLE, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+}
+
+int OCServo::getMaxAngle() {
+    OCSResponse response = this->ocsRead(OCS_MAX_ANGLE, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+}
+
+int OCServo::getMaxVoltage() {
+    OCSResponse response = this->ocsRead(OCS_MAX_VOLTAGE, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+}
+
+int OCServo::getMinVoltage() {
+    OCSResponse response = this->ocsRead(OCS_MIN_VOLTAGE, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+}
+
+long OCServo::getOperationSpeed() {
+    OCSResponse response = this->ocsRead(OCS_OPERATION_SPEED, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
 }
 
 /* OTHER */

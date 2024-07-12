@@ -67,7 +67,17 @@ class OCServo {
 
         byte getID();
         long getBaudRate();
+        int getMaxTorque();
+        int getMode();
+        int getGoalPosition();
         long getOperationTime();
+        int getResponseDelay();
+        int getResponseLevel();
+        int getMinAngle();
+        int getMaxAngle();
+        int getMaxVoltage();
+        int getMinVoltage();
+        long getOperationSpeed();
         
 
         void begin(long baudrate=1000000);
