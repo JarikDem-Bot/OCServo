@@ -50,18 +50,18 @@ class OCServo {
         void regRead(byte address, byte length);
         OCSResponse regWrite(byte address, int paramsNumber, byte *params);
 
-        void setID(byte new_id);
+        OCSResponse setID(byte new_id);
         void setBaudRate(long baudrate);
-        void setMaxTorque(int torque);
-        void setMode(int mode);
-        void setGoalPosition(int angle, long timeMillis = 0);
-        void setResponseDelay(int delayMicros);
-        void setResponseLevel(int level);
-        void setMinAngle(int angle);
-        void setMaxAngle(int angle);
-        void setMaxVoltage(int voltage);
-        void setMinVoltage(int voltage);
-        void setOperationSpeed(long speed);
+        OCSResponse setMaxTorque(int torque);
+        OCSResponse setMode(int mode);
+        OCSResponse setGoalPosition(int angle, long timeMillis = 0);
+        OCSResponse setResponseDelay(int delayMicros);
+        OCSResponse setResponseLevel(int level);
+        OCSResponse setMinAngle(int angle);
+        OCSResponse setMaxAngle(int angle);
+        OCSResponse setMaxVoltage(int voltage);
+        OCSResponse setMinVoltage(int voltage);
+        OCSResponse setOperationSpeed(long speed);
 
         void getBaudRate();
 
