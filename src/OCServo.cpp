@@ -45,7 +45,7 @@ byte OCServo::baudRateToByte(long baudrate) {
             value = OCS_BAUDRATE_38400;
             break;
         default:
-            Serial.println("Invalid baudrate. Using default 1M baudrate.");
+            // Fallthrough to default 1M
         case 1000000:
             value = OCS_BAUDRATE_1M;
             break;
@@ -197,7 +197,7 @@ void OCServo::setGoalPosition(int angle, long timeMillis /*= 0*/) {
 
 void OCServo::setResponseDelay(int delayMicros) {
     if(delayMicros < 0 || delayMicros > 510) {
-        Serial.println("Invalid delay value. Using 0 instead.");
+        // Invalid delay, using default 0
         delayMicros = 0;
     }
     byte value = delayMicros / 2;
