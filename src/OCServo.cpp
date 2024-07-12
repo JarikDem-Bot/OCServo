@@ -222,11 +222,21 @@ OCSResponse OCServo::setMode(int mode) {
     return this->ocsWrite(OCS_RUNNING_MODE, 1, &value);
 }
 
-OCSResponse OCServo::setGoalPosition(int angle, long timeMillis /*= 0*/) {
+OCSResponse OCServo::setGoalAngle(int angle, long timeMillis /*= 0*/) {
     angle = map(angle, 0, 360, 0, 4095);
     byte params[4] = {
         lowByte(angle),
         highByte(angle),
+        lowByte(timeMillis),
+        highByte(timeMillis)
+    };
+    return this->ocsWrite(OCS_GOAL_POSITION, 4, params);
+}
+
+OCSResponse OCServo::setGoalPosition(int position, long timeMillis /*= 0*/) {
+    byte params[4] = {
+        lowByte(position),
+        highByte(position),
         lowByte(timeMillis),
         highByte(timeMillis)
     };
@@ -341,13 +351,22 @@ int OCServo::getMode() {
     return response.parameters[0];
 }
 
-int OCServo::getGoalPosition() {
+int OCServo::getGoalAngle() {
     OCSResponse response = this->ocsRead(OCS_GOAL_POSITION, 2);
     if (response.numberOfParameters != 2) {
         return -1;
     }
     int value = ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
     return map(value, 0, 4095, 0, 360);
+}
+
+int OCServo::getGoalPosition() {
+    OCSResponse response = this->ocsRead(OCS_GOAL_POSITION, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    int value = ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+    return value;
 }
 
 long OCServo::getOperationTime() {
@@ -413,6 +432,14 @@ long OCServo::getOperationSpeed() {
         return -1;
     }
     return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+}
+
+bool OCServo::reachedGoal() {
+    OCSResponse response = this->ocsRead(OCS_OPERATING_SIGN, 1);
+    if (response.numberOfParameters != 1) {
+        return false;
+    }
+    return (response.parameters[0] == 0x00);
 }
 
 /* OTHER */

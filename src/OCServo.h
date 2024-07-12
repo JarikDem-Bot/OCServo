@@ -55,6 +55,7 @@ class OCServo {
         void setBaudRate(long baudrate);
         OCSResponse setMaxTorque(int torque);
         OCSResponse setMode(int mode);
+        OCSResponse setGoalAngle(int angle, long timeMillis= 0);
         OCSResponse setGoalPosition(int angle, long timeMillis = 0);
         OCSResponse setOperationTime(long timeMillis);
         OCSResponse setResponseDelay(int delayMicros);
@@ -69,6 +70,7 @@ class OCServo {
         long getBaudRate();
         int getMaxTorque();
         int getMode();
+        int getGoalAngle();
         int getGoalPosition();
         long getOperationTime();
         int getResponseDelay();
@@ -78,7 +80,7 @@ class OCServo {
         int getMaxVoltage();
         int getMinVoltage();
         long getOperationSpeed();
-        
+        bool reachedGoal();
 
         void begin(long baudrate=1000000);
         void printResponse(OCSResponse response);
