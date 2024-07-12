@@ -54,6 +54,42 @@ byte OCServo::baudRateToByte(long baudrate) {
     return value;
 }
 
+long OCServo::byteToBaudRate(byte value) {
+    long result;
+
+    switch(value) {
+        case OCS_BAUDRATE_1M:
+            result = 1000000;
+            break;
+        case OCS_BAUDRATE_500K:
+            result = 500000;
+            break;
+        case OCS_BAUDRATE_250K:
+            result = 250000;
+            break;
+        case OCS_BAUDRATE_128K:
+            result = 128000;
+            break;
+        case OCS_BAUDRATE_115200:
+            result = 115200;
+            break;
+        case OCS_BAUDRATE_76800:
+            result = 76800;
+            break;
+        case OCS_BAUDRATE_57600:
+            result = 57600;
+            break;
+        case OCS_BAUDRATE_38400:
+            result = 38400;
+            break;
+        default:
+            result = -1;
+            break;
+    }
+
+    return result;
+}
+
 OCSResponse OCServo::bytesToResponse(byte *data, int size) {
     OCSResponse response;
 
@@ -109,7 +145,7 @@ void OCServo::ping() {
     this->readResponse();
 }
 
-void OCServo::regRead(byte address, byte length) {
+OCSResponse OCServo::ocsRead(byte address, byte length) {
     int size = 8;
     byte request[size] = {
         0xFF, 0xFF,         // Prefix
@@ -123,10 +159,10 @@ void OCServo::regRead(byte address, byte length) {
     request[size-1] = this->getChecksum(request, size-1);
 
     serial->write(request, size);
-    this->readResponse();
+    return this->readResponse();
 }
 
-OCSResponse OCServo::regWrite(byte address, int paramsNumber, byte *params) {
+OCSResponse OCServo::ocsWrite(byte address, int paramsNumber, byte *params) {
     int size = paramsNumber + 7;
     byte request[size] = {
         0xFF, 0xFF,             // Prefix
@@ -148,7 +184,7 @@ OCSResponse OCServo::regWrite(byte address, int paramsNumber, byte *params) {
 
 /* WRITE COMMANDS */
 OCSResponse OCServo::setID(byte new_id) {
-    OCSResponse resp =  this->regWrite(OCS_SERVO_ID, 1, &new_id);
+    OCSResponse resp =  this->ocsWrite(OCS_SERVO_ID, 1, &new_id);
     id = new_id;
     return resp;
 }
@@ -156,7 +192,7 @@ OCSResponse OCServo::setID(byte new_id) {
 void OCServo::setBaudRate(long baudrate) {
     byte value = this->baudRateToByte(baudrate);
 
-    this->regWrite(OCS_BAUD_RATE, 1, &value);
+    this->ocsWrite(OCS_BAUD_RATE, 1, &value);
 
     this->begin(baudrate);
 }
@@ -166,7 +202,7 @@ OCSResponse OCServo::setMaxTorque(int torque) {
         lowByte(torque),
         highByte(torque)
     };
-    return this->regWrite(OCS_MAX_TORQUE, 2, params);
+    return this->ocsWrite(OCS_MAX_TORQUE, 2, params);
 }
 
 OCSResponse OCServo::setMode(int mode) {
@@ -183,7 +219,7 @@ OCSResponse OCServo::setMode(int mode) {
             break;
     } 
     
-    return this->regWrite(OCS_RUNNING_MODE, 1, &value);
+    return this->ocsWrite(OCS_RUNNING_MODE, 1, &value);
 }
 
 OCSResponse OCServo::setGoalPosition(int angle, long timeMillis /*= 0*/) {
@@ -194,7 +230,15 @@ OCSResponse OCServo::setGoalPosition(int angle, long timeMillis /*= 0*/) {
         lowByte(timeMillis),
         highByte(timeMillis)
     };
-    return this->regWrite(OCS_GOAL_POSITION, 4, params);
+    return this->ocsWrite(OCS_GOAL_POSITION, 4, params);
+}
+
+OCSResponse OCServo::setOperationTime(long timeMillis) {
+    byte params[2] = {
+        lowByte(timeMillis),
+        highByte(timeMillis)
+    };
+    return this->ocsWrite(OCS_OPERATION_TIME, 2, params);
 }
 
 OCSResponse OCServo::setResponseDelay(int delayMicros) {
@@ -203,7 +247,7 @@ OCSResponse OCServo::setResponseDelay(int delayMicros) {
         delayMicros = 0;
     }
     byte value = delayMicros / 2;
-    return this->regWrite(OCS_RESPONSE_DELAY, 1, &value);
+    return this->ocsWrite(OCS_RESPONSE_DELAY, 1, &value);
 }
 
 OCSResponse OCServo::setResponseLevel(int level) {
@@ -221,7 +265,7 @@ OCSResponse OCServo::setResponseLevel(int level) {
             break;
     }
 
-    return this->regWrite(OCS_RESPONSE_LEVEL, 1, &value);
+    return this->ocsWrite(OCS_RESPONSE_LEVEL, 1, &value);
 }
 
 OCSResponse OCServo::setMinAngle(int angle) {
@@ -229,7 +273,7 @@ OCSResponse OCServo::setMinAngle(int angle) {
         lowByte(angle),
         highByte(angle)
     };
-    return this->regWrite(OCS_MIN_ANGLE, 2, params);
+    return this->ocsWrite(OCS_MIN_ANGLE, 2, params);
 }
 
 OCSResponse OCServo::setMaxAngle(int angle) {
@@ -237,7 +281,7 @@ OCSResponse OCServo::setMaxAngle(int angle) {
         lowByte(angle),
         highByte(angle)
     };
-    return this->regWrite(OCS_MAX_ANGLE, 2, params);
+    return this->ocsWrite(OCS_MAX_ANGLE, 2, params);
 }
 
 OCSResponse OCServo::setMaxVoltage(int voltage) {
@@ -245,7 +289,7 @@ OCSResponse OCServo::setMaxVoltage(int voltage) {
         lowByte(voltage),
         highByte(voltage)
     };
-    return this->regWrite(OCS_MAX_VOLTAGE, 2, params);
+    return this->ocsWrite(OCS_MAX_VOLTAGE, 2, params);
 }
 
 OCSResponse OCServo::setMinVoltage(int voltage) {
@@ -253,7 +297,7 @@ OCSResponse OCServo::setMinVoltage(int voltage) {
         lowByte(voltage),
         highByte(voltage)
     };
-    return this->regWrite(OCS_MIN_VOLTAGE, 2, params);
+    return this->ocsWrite(OCS_MIN_VOLTAGE, 2, params);
 }
 
 OCSResponse OCServo::setOperationSpeed(long speed) {
@@ -261,12 +305,114 @@ OCSResponse OCServo::setOperationSpeed(long speed) {
         lowByte(speed),
         highByte(speed)
     };
-    return this->regWrite(OCS_OPERATION_SPEED, 2, params);
+    return this->ocsWrite(OCS_OPERATION_SPEED, 2, params);
 }
 
 /* READ COMMANDS */
-void OCServo::getBaudRate() {
-    this->regRead(OCS_BAUD_RATE, 1);
+byte OCServo::getID() {
+    OCSResponse response = this->ocsRead(OCS_SERVO_ID, 1);
+    if (response.numberOfParameters != 1) {
+        return 0xFF;
+    }
+    return response.parameters[0];
+}
+
+long OCServo::getBaudRate() {
+    OCSResponse response = this->ocsRead(OCS_BAUD_RATE, 1);
+    if (response.numberOfParameters != 1) {
+        return -1;
+    }
+    return this->byteToBaudRate(response.parameters[0]);
+}
+
+int OCServo::getMaxTorque() {
+    OCSResponse response = this->ocsRead(OCS_MAX_TORQUE, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+}
+
+int OCServo::getMode() {
+    OCSResponse response = this->ocsRead(OCS_RUNNING_MODE, 1);
+    if (response.numberOfParameters != 1) {
+        return -1;
+    }
+    return response.parameters[0];
+}
+
+int OCServo::getGoalPosition() {
+    OCSResponse response = this->ocsRead(OCS_GOAL_POSITION, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    int value = ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+    return map(value, 0, 4095, 0, 360);
+}
+
+long OCServo::getOperationTime() {
+    OCSResponse response = this->ocsRead(OCS_OPERATION_TIME, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+
+}
+
+int OCServo::getResponseDelay() {
+    OCSResponse response = this->ocsRead(OCS_RESPONSE_DELAY, 1);
+    if (response.numberOfParameters != 1) {
+        return -1;
+    }
+    return response.parameters[0] * 2;
+}
+
+int OCServo::getResponseLevel() {
+    OCSResponse response = this->ocsRead(OCS_RESPONSE_LEVEL, 1);
+    if (response.numberOfParameters != 1) {
+        return -1;
+    }
+    return response.parameters[0];
+}
+
+int OCServo::getMinAngle() {
+    OCSResponse response = this->ocsRead(OCS_MIN_ANGLE, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+}
+
+int OCServo::getMaxAngle() {
+    OCSResponse response = this->ocsRead(OCS_MAX_ANGLE, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+}
+
+int OCServo::getMaxVoltage() {
+    OCSResponse response = this->ocsRead(OCS_MAX_VOLTAGE, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+}
+
+int OCServo::getMinVoltage() {
+    OCSResponse response = this->ocsRead(OCS_MIN_VOLTAGE, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
+}
+
+long OCServo::getOperationSpeed() {
+    OCSResponse response = this->ocsRead(OCS_OPERATION_SPEED, 2);
+    if (response.numberOfParameters != 2) {
+        return -1;
+    }
+    return ((response.parameters[1] << 8) | response.parameters[0] & 0x00FF);
 }
 
 /* OTHER */
