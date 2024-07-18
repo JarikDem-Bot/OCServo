@@ -1,4 +1,4 @@
-<div align="center"><img src="https://github.com/user-attachments/assets/248c6454-db9d-4bf9-bb11-11bb3f793a35" width="30%"></div>
+<div align="center"><img src="https://github.com/user-attachments/assets/ec4122c9-606f-4953-a0cf-03f3bd8f9b3a" width="30%"></div>
 
 <h1 align="center">OCServo library</h1>
 
