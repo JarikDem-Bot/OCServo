@@ -1,0 +1,53 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+OCServo	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+setKeyId	KEYWORD2
+ping	KEYWORD2
+ocsRead	KEYWORD2
+ocsWrite	KEYWORD2
+setID	KEYWORD2
+setBaudRate	KEYWORD2
+setMaxTorque	KEYWORD2
+setMode	KEYWORD2
+setGoalAngle	KEYWORD2
+setGoalPosition	KEYWORD2
+setOperationTime	KEYWORD2
+setResponseDelay	KEYWORD2
+setResponseLevel	KEYWORD2
+setMinAngle	KEYWORD2
+setMaxAngle	KEYWORD2
+setMaxVoltage	KEYWORD2
+setMinVoltage	KEYWORD2
+setOperationSpeed	KEYWORD2
+getID	KEYWORD2
+getBaudRate	KEYWORD2
+getMaxTorque	KEYWORD2
+getMode	KEYWORD2
+getGoalAngle	KEYWORD2
+getGoalPosition	KEYWORD2
+getOperationTime	KEYWORD2
+getResponseDelay	KEYWORD2
+getResponseLevel	KEYWORD2
+getMinAngle	KEYWORD2
+getMaxAngle	KEYWORD2
+getMaxVoltage	KEYWORD2
+getMinVoltage	KEYWORD2
+getOperationSpeed	KEYWORD2
+reachedGoal	KEYWORD2
+begin	KEYWORD2
+printResponse	KEYWORD2
+
+######################################
+# Constants (LITERAL1)
+#######################################
+OCSResponse	LITERAL1
